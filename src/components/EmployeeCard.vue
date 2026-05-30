@@ -125,7 +125,10 @@ function goToDetail() {
 }
 
 .card-action {
-  flex-shrink: 0;
+  margin-top: auto; 
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .detail-btn {
@@ -146,17 +149,10 @@ function goToDetail() {
 /* Адаптивность */
 @media (max-width: 768px) {
   .employee-card {
-    flex-wrap: wrap;
-    gap: 1rem;
-    text-align: center;
-    justify-content: center;
-  }
-  .card-info {
+    flex-direction: column;
     text-align: center;
   }
-  .name-block {
-    justify-content: center;
-  }
+  
   .card-photo {
     width: 100px;
     height: 100px;

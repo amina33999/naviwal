@@ -50,7 +50,7 @@ const filteredEmployees = computed(() => {
 <template>
   <div class="home-page">
     <div class="filters-bar">
-      <!-- Отделы -->
+      
       <div class="custom-select" @click="toggleDepartments" ref="deptSelectRef">
         <div class="custom-select__trigger">
           <span>{{ selectedDepartmentLabel }}</span>
@@ -73,13 +73,13 @@ const filteredEmployees = computed(() => {
           <div v-for="pos in allPositions" :key="pos" class="custom-select__option" @click.stop="selectPosition(pos)">{{ pos }}</div>
         </div>
       </div>
-
+      
       <!-- Поиск -->
       <div class="search-field">
         <input type="text" v-model="searchQuery" placeholder="Поиск">
         <img :src="searchIcon" alt="Поиск" class="search-icon">
       </div>
-
+      
       <!-- Кнопка сброса -->
       <button class="reset-filters-btn" @click="resetFilters">Сбросить фильтры</button>
     </div>
@@ -97,6 +97,7 @@ const filteredEmployees = computed(() => {
 .home-page {
   max-width: 1400px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .filters-bar {
@@ -205,9 +206,9 @@ const filteredEmployees = computed(() => {
 }
 
 .employees-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
 
 .empty-state {
@@ -219,6 +220,12 @@ const filteredEmployees = computed(() => {
 }
 
 /* Адаптивность */
+@media (max-width: 1200px) {
+  .employees-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .filters-bar {
     flex-direction: column;
@@ -229,6 +236,9 @@ const filteredEmployees = computed(() => {
   }
   .reset-filters-btn {
     width: 100%;
+  }
+  .employees-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
