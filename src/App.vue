@@ -1,5 +1,7 @@
 <script setup>
+import { RouterView } from 'vue-router'
 import TopNav from './components/TopNav.vue'
+import ToastNotification from './components/ToastNotification.vue'
 </script>
 
 <template>
@@ -8,6 +10,7 @@ import TopNav from './components/TopNav.vue'
     <main class="main-content">
       <router-view />
     </main>
+    <ToastNotification />
   </div>
 </template>
 

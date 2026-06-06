@@ -426,4 +426,149 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
     right: 1rem;
   }
 }
+.admin-table-wrapper {
+  background: white;
+  border-radius: 32px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Ширина колонок */
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 70px;
+  text-align: center;
+}
+
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 200px;
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 180px;
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 140px;
+}
+
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5) {
+  width: 200px;
+}
+
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6) {
+  width: 140px;
+}
+
+.admin-table th:nth-child(7),
+.admin-table td:nth-child(7) {
+  width: 110px;
+  text-align: center;
+}
+
+.admin-table th:nth-child(8),
+.admin-table td:nth-child(8) {
+  width: 90px;
+  text-align: center;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem 0.6rem;
+  border-bottom: 1px solid #eef2f6;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Для email и телефона - можно переносить */
+.admin-table td:nth-child(5),
+.admin-table td:nth-child(6) {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.admin-table th {
+  font-weight: 600;
+  color: #475569;
+  background: #fafbfc;
+}
+
+/* Фото */
+.photo-cell {
+  text-align: center !important;
+  padding: 0.5rem !important;
+}
+
+.table-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.no-avatar {
+  width: 40px;
+  height: 40px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+/* Действия */
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.action-icon img {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.action-icon.edit:hover { 
+  background: #dbeafe; 
+}
+
+.action-icon.delete:hover { 
+  background: #fee2e2; 
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 1200px) {
+  .admin-table {
+    min-width: 1000px;
+  }
+}
 </style>
