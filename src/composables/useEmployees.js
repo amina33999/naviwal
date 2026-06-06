@@ -11,7 +11,29 @@ const defaultEmployees = [
     email: "anna.ivanova@company.com",
     phone: "+7 (495) 123-45-67",
     hireDate: "2023-01-15",
-    bio: "Отвечает за подбор персонала...",
+    bio: "Отвечает за подбор персонала, проведение собеседований и адаптацию новых сотрудников.",
+    photo: null,
+  },
+  {
+    id: 2,
+    fullName: "Петров Сергей Владимирович",
+    position: "Ведущий разработчик",
+    department: "IT",
+    email: "sergey.petrov@company.com",
+    phone: "+7 (495) 234-56-78",
+    hireDate: "2022-06-10",
+    bio: "Руководит командой разработки, отвечает за архитектуру проектов.",
+    photo: null,
+  },
+  {
+    id: 3,
+    fullName: "Сидорова Елена Алексеевна",
+    position: "Менеджер по продажам",
+    department: "Продажи",
+    email: "elena.sidorova@company.com",
+    phone: "+7 (495) 345-67-89",
+    hireDate: "2023-03-20",
+    bio: "Работа с ключевыми клиентами, развитие партнёрской сети.",
     photo: null,
   },
 ];
@@ -38,6 +60,7 @@ export function useEmployees() {
   function getAll() {
     return employees.value;
   }
+  
   function getById(id) {
     return employees.value.find((emp) => emp.id === id);
   }
@@ -49,19 +72,30 @@ export function useEmployees() {
     const newEmployee = { id: maxId + 1, ...employee };
     employees.value.push(newEmployee);
     saveToLocalStorage();
+    if (window.showToast) {
+      window.showToast(`Сотрудник "${newEmployee.fullName}" добавлен`, 'success');
+    }
   }
 
   function update(id, updatedData) {
     const index = employees.value.findIndex((emp) => emp.id === id);
     if (index !== -1) {
+      const oldName = employees.value[index].fullName;
       employees.value[index] = { ...employees.value[index], ...updatedData };
       saveToLocalStorage();
+      if (window.showToast) {
+        window.showToast(`Сотрудник "${oldName}" обновлён`, 'success');
+      }
     }
   }
 
   function remove(id) {
+    const deleted = employees.value.find((emp) => emp.id === id);
     employees.value = employees.value.filter((emp) => emp.id !== id);
     saveToLocalStorage();
+    if (window.showToast && deleted) {
+      window.showToast(`Сотрудник "${deleted.fullName}" удалён`, 'success');
+    }
   }
 
   function search(query) {
@@ -96,13 +130,13 @@ export function useEmployees() {
       "Биография",
     ];
     const rows = employeeList.map((emp) => [
-      emp.fullName,
-      emp.position,
-      emp.department,
+      `"${emp.fullName}"`,
+      `"${emp.position}"`,
+      `"${emp.department}"`,
       emp.email,
       emp.phone,
       emp.hireDate,
-      emp.bio,
+      `"${emp.bio || ''}"`,
     ]);
     const csvContent = [headers, ...rows]
       .map((row) => row.join(","))
@@ -113,11 +147,15 @@ export function useEmployees() {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.href = url;
-    link.setAttribute("download", "employees.csv");
+    link.setAttribute("download", `employees_${new Date().toISOString().slice(0,19)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    if (window.showToast) {
+      window.showToast(`Экспортировано ${employeeList.length} сотрудников`, 'success');
+    }
   }
 
   function formatDate(dateStr) {

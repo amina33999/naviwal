@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
 import closeIcon from '../assets/icons/close.svg'
 
@@ -17,9 +17,13 @@ const form = reactive({
   bio: '',
   photo: null
 })
+
 const photoPreview = ref(null)
 const errors = ref({})
 const generalError = ref('')
+
+const customDept = ref('')
+const customPos = ref('')
 
 onMounted(() => {
   if (props.employee) {
@@ -60,13 +64,11 @@ function validate() {
   }
 
   if (!form.position.trim()) {
-    errors.value.position = 'Должность обязательна'
-  } else if (form.position.trim().length < 2) {
-    errors.value.position = 'Должность слишком короткая'
+    errors.value.position = 'Введите или выберите должность'
   }
 
-  if (!form.department) {
-    errors.value.department = 'Выберите отдел'
+  if (!form.department.trim()) {
+    errors.value.department = 'Введите или выберите отдел'
   }
 
   if (!form.email.trim()) {
@@ -76,9 +78,9 @@ function validate() {
   }
 
   if (!form.phone.trim()) {
-    errors.value.phone = 'Телефон обязателен'
-  } else if (!/^[\+\d\s\(\)\-]{10,20}$/.test(form.phone.trim())) {
-    errors.value.phone = 'Введите корректный номер телефона'
+  errors.value.phone = 'Телефон обязателен'
+  } else if (form.phone.replace(/\D/g, '').length !== 11) {
+  errors.value.phone = 'Введите корректный номер из 11 цифр'
   }
 
   if (!form.hireDate) {
@@ -113,6 +115,42 @@ function submit() {
 function close() {
   emit('close')
 }
+
+const allPositions = computed(() => {
+  const positions = useEmployees().employees.value.map(emp => emp.position)
+  return [...new Set(positions)]
+})
+
+function formatPhone(value) {
+  let cleaned = value.replace(/\D/g, '')
+  if (cleaned.length > 11) cleaned = cleaned.slice(0, 11)
+  
+  if (cleaned.length === 0) return ''
+  if (cleaned[0] === '8') cleaned = '7' + cleaned.slice(1)
+  if (cleaned[0] !== '7') cleaned = '7' + cleaned
+  
+  let result = '+7'
+  if (cleaned.length > 1) result += ' (' + cleaned.slice(1, 4)
+  if (cleaned.length >= 5) result += ') ' + cleaned.slice(4, 7)
+  if (cleaned.length >= 8) result += '-' + cleaned.slice(7, 9)
+  if (cleaned.length >= 10) result += '-' + cleaned.slice(9, 11)
+  
+  return result
+}
+
+function onPhoneInput(e) {
+  const raw = e.target.value
+  const cursorPos = e.target.selectionStart
+  const oldLength = raw.length
+  const formatted = formatPhone(raw)
+  form.phone = formatted
+  
+  setTimeout(() => {
+    const newLength = formatted.length
+    const diff = newLength - oldLength
+    e.target.selectionStart = e.target.selectionEnd = cursorPos + diff
+  }, 0)
+}
 </script>
 
 <template>
@@ -127,52 +165,85 @@ function close() {
           <div class="form-grid">
             <div class="field full-width">
               <label>ФИО *</label>
-              <input v-model="form.fullName" type="text" @input="clearError('fullName')">
+              <input v-model="form.fullName" type="text" @input="clearError('fullName')" placeholder="Иванов Иван Иванович">
               <span v-if="errors.fullName" class="error">{{ errors.fullName }}</span>
             </div>
+            
+            <!-- ДОЛЖНОСТЬ - комбинированный список (можно выбрать ИЛИ вписать) -->
             <div class="field">
-              <label>Должность</label>
-              <input v-model="form.position" type="text" @input="clearError('position')">
+              <label>Должность *</label>
+              <div class="combobox">
+                <input 
+                  type="text"
+                  v-model="form.position"
+                  list="positions-list"
+                  @input="clearError('position')"
+                  placeholder="Выберите или введите должность"
+                  autocomplete="off"
+                >
+                <datalist id="positions-list">
+                  <option v-for="pos in allPositions" :key="pos" :value="pos"></option>
+                </datalist>
+              </div>
               <span v-if="errors.position" class="error">{{ errors.position }}</span>
             </div>
+            
+            <!-- ОТДЕЛ - комбинированный список (можно выбрать ИЛИ вписать) -->
             <div class="field">
-              <label>Отдел</label>
-              <select v-model="form.department" @change="clearError('department')">
-                <option value="" disabled>Выберите отдел</option>
-                <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
-                <option value="Другой">Другой</option>
-              </select>
+              <label>Отдел *</label>
+              <div class="combobox">
+                <input 
+                  type="text"
+                  v-model="form.department"
+                  list="departments-list"
+                  @input="clearError('department')"
+                  placeholder="Выберите или введите отдел"
+                  autocomplete="off"
+                >
+                <datalist id="departments-list">
+                  <option v-for="dept in departments" :key="dept" :value="dept"></option>
+                </datalist>
+              </div>
               <span v-if="errors.department" class="error">{{ errors.department }}</span>
             </div>
+            
             <div class="field">
-              <label>Email</label>
-              <input type="email" v-model="form.email" @input="clearError('email')">
+              <label>Email *</label>
+              <input type="email" v-model="form.email" @input="clearError('email')" placeholder="example@company.com">
               <span v-if="errors.email" class="error">{{ errors.email }}</span>
             </div>
+            
             <div class="field">
-              <label>Телефон</label>
-              <input v-model="form.phone" @input="clearError('phone')">
+              <label>Телефон *</label>
+              <input
+              type="text" :value="form.phone" @input="onPhoneInput" @blur="clearError('phone')" placeholder="+7 (999) 999-99-99" maxlength="18">
+              
               <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
             </div>
+            
             <div class="field">
-              <label>Дата приёма</label>
+              <label>Дата приёма *</label>
               <input type="date" v-model="form.hireDate" @change="clearError('hireDate')">
               <span v-if="errors.hireDate" class="error">{{ errors.hireDate }}</span>
             </div>
+            
             <div class="field full-width">
               <label>Фото</label>
               <input type="file" accept="image/*" @change="onFileChange">
               <div v-if="photoPreview" class="photo-preview">
                 <img :src="photoPreview">
-                <button type="button" class="remove-photo" @click="removePhoto"><img :src="closeIcon" alt="Закрыть"></button>
+                <button type="button" class="remove-photo" @click="removePhoto">✕</button>
               </div>
             </div>
+            
             <div class="field full-width">
               <label>Биография</label>
-              <textarea v-model="form.bio" rows="3"></textarea>
+              <textarea v-model="form.bio" rows="3" placeholder="Краткая информация о сотруднике..."></textarea>
             </div>
           </div>
+          
           <div v-if="generalError" class="error general">{{ generalError }}</div>
+          
           <div class="modal-actions">
             <button type="submit" class="btn-save">Сохранить</button>
             <button type="button" class="btn-cancel" @click="close">Отмена</button>
@@ -251,6 +322,24 @@ function close() {
   font-family: inherit;
 }
 
+/* Комбинированный список - одна строка */
+.combobox {
+  width: 100%;
+}
+
+.combobox input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  font-family: inherit;
+}
+
+.combobox input:focus {
+  outline: none;
+  border-color: #0f172a;
+}
+
 .photo-preview {
   display: flex;
   align-items: center;
@@ -307,7 +396,6 @@ function close() {
   border: 1px solid #e2e8f0;
 }
 
-/* Адаптивность */
 @media (max-width: 640px) {
   .modal-container {
     padding: 1.2rem;
