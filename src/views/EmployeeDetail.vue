@@ -68,37 +68,49 @@ function goBack() {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
+  color: var(--text);
 }
 
+/* кнопка назад */
 .back-button {
-  background: white;
-  border: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+
   padding: 0.5rem 1rem;
   border-radius: 60px;
   font-size: 0.9rem;
   cursor: pointer;
   margin-bottom: 2rem;
+
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
+
+  transition: 0.2s;
 }
 
 .back-button:hover {
-  background: #f1f5f9;
+  background: var(--hover);
 }
 
+/* карточка */
 .detail-card {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
+
   border-radius: 32px;
   display: flex;
   flex-wrap: wrap;
   gap: 3rem;
+
   padding: 3rem;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-soft);
 }
 
+/* фото */
 .detail-photo {
   flex: 1;
   min-width: 300px;
@@ -110,16 +122,24 @@ function goBack() {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 28px;
-  background: #e2e8f0;
+
+  background: var(--surface-alt);
 }
 
 .photo-placeholder {
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+
+  background: linear-gradient(
+    145deg,
+    var(--surface-alt),
+    var(--border)
+  );
+
   border-radius: 28px;
 }
 
+/* текст */
 .detail-info {
   flex: 2;
   display: flex;
@@ -131,26 +151,28 @@ function goBack() {
   font-size: 3rem;
   font-weight: 700;
   margin: 0;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .position {
   font-size: 1.8rem;
   font-weight: 500;
-  color: #1e293b;
-  margin-top: 0.5rem;
+  color: var(--text);
+  opacity: 0.9;
 }
 
 .department {
   font-size: 1.4rem;
-  color: #475569;
+  color: var(--muted);
 }
 
+/* блок контактов */
 .contact-block {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: #f9f9f9;
+
+  background: var(--surface-alt);
   padding: 1.5rem;
   border-radius: 24px;
   margin-top: 1rem;
@@ -165,7 +187,7 @@ function goBack() {
 .contact-item .label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -173,25 +195,29 @@ function goBack() {
 .contact-item .value {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text);
 }
 
-/* Адаптивность */
+/* адаптив */
 @media (max-width: 768px) {
   .detail-card {
     flex-direction: column;
     padding: 1.5rem;
     gap: 1.5rem;
   }
+
   .fullname {
     font-size: 2rem;
   }
+
   .position {
     font-size: 1.3rem;
   }
+
   .department {
     font-size: 1rem;
   }
+
   .contact-item .value {
     font-size: 1rem;
   }

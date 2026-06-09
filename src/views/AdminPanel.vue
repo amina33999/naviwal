@@ -47,7 +47,7 @@ const filteredEmployees = computed(() => {
   let list = employees.value
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase()
-    list = list.filter(emp => 
+    list = list.filter(emp =>
       emp.fullName.toLowerCase().includes(q) ||
       emp.position.toLowerCase().includes(q) ||
       emp.department.toLowerCase().includes(q)
@@ -98,7 +98,8 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
         </div>
         <div class="custom-select__options" v-if="deptFilterOpen">
           <div class="custom-select__option" @click.stop="setDeptFilter('all')">Все отделы</div>
-          <div v-for="d in departments" :key="d" class="custom-select__option" @click.stop="setDeptFilter(d)">{{ d }}</div>
+          <div v-for="d in departments" :key="d" class="custom-select__option" @click.stop="setDeptFilter(d)">{{ d }}
+          </div>
         </div>
       </div>
 
@@ -109,7 +110,8 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
         </div>
         <div class="custom-select__options" v-if="posFilterOpen">
           <div class="custom-select__option" @click.stop="setPosFilter('all')">Все должности</div>
-          <div v-for="p in allPositions" :key="p" class="custom-select__option" @click.stop="setPosFilter(p)">{{ p }}</div>
+          <div v-for="p in allPositions" :key="p" class="custom-select__option" @click.stop="setPosFilter(p)">{{ p }}
+          </div>
         </div>
       </div>
 
@@ -128,8 +130,14 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
         <table class="admin-table">
           <thead>
             <tr>
-              <th>Фото</th><th>ФИО</th><th>Должность</th><th>Отдел</th>
-              <th>Email</th><th>Телефон</th><th>Дата приёма</th><th>Действия</th>
+              <th>Фото</th>
+              <th>ФИО</th>
+              <th>Должность</th>
+              <th>Отдел</th>
+              <th>Email</th>
+              <th>Телефон</th>
+              <th>Дата приёма</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -173,7 +181,8 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
 
     <!-- Модалки -->
     <EmployeeFormModal v-if="showFormModal" :employee="editingEmployee" @close="closeFormModal" />
-    <ConfirmModal v-if="showConfirm" title="Удаление сотрудника" message="Вы уверены?" @confirm="confirmDelete" @cancel="cancelDelete" />
+    <ConfirmModal v-if="showConfirm" title="Удаление сотрудника" message="Вы уверены?" @confirm="confirmDelete"
+      @cancel="cancelDelete" />
   </div>
 </template>
 
@@ -200,7 +209,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   border-radius: 60px;
   cursor: pointer;
   user-select: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .custom-select__trigger {
@@ -227,7 +236,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   background: white;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   z-index: 20;
 }
 
@@ -253,7 +262,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   border: none;
   border-radius: 60px;
   background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   font-size: 1rem;
 }
 
@@ -296,7 +305,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   background: white;
   border-radius: 32px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .admin-table-container {
@@ -308,7 +317,8 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   border-collapse: collapse;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
   padding: 1rem 0.8rem;
   text-align: left;
   border-bottom: 1px solid #eef2f6;
@@ -357,12 +367,12 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   display: block;
 }
 
-.action-icon.edit:hover { 
-  background: #dbeafe; 
+.action-icon.edit:hover {
+  background: #dbeafe;
 }
 
-.action-icon.delete:hover { 
-  background: #fee2e2; 
+.action-icon.delete:hover {
+  background: #fee2e2;
 }
 
 .pagination {
@@ -394,7 +404,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   border-radius: 50%;
   font-size: 2rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
 }
 
@@ -409,15 +419,18 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
     flex-direction: column;
     align-items: stretch;
   }
+
   .custom-select,
   .search-field {
     max-width: none;
   }
+
   .reset-filters-btn,
   .export-btn {
     width: 100%;
     text-align: center;
   }
+
   .fab {
     width: 56px;
     height: 56px;
@@ -426,11 +439,12 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
     right: 1rem;
   }
 }
+
 .admin-table-wrapper {
   background: white;
   border-radius: 32px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .admin-table-container {
@@ -557,12 +571,12 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   display: block;
 }
 
-.action-icon.edit:hover { 
-  background: #dbeafe; 
+.action-icon.edit:hover {
+  background: #dbeafe;
 }
 
-.action-icon.delete:hover { 
-  background: #fee2e2; 
+.action-icon.delete:hover {
+  background: #fee2e2;
 }
 
 /* Адаптивность для маленьких экранов */
@@ -570,5 +584,87 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   .admin-table {
     min-width: 1000px;
   }
+}
+
+.custom-select {
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.custom-select__trigger {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.custom-select__options {
+  background: var(--surface);
+  box-shadow: var(--shadow-strong);
+}
+
+.custom-select__option:hover {
+  background: var(--hover-soft);
+}
+
+.search-field input {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.search-field input::placeholder {
+  color: var(--muted);
+}
+
+.reset-filters-btn,
+.export-btn {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+.reset-filters-btn:hover,
+.export-btn:hover {
+  background: var(--button-hover);
+}
+
+.admin-table-wrapper {
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.admin-table th {
+  color: var(--muted);
+  background: var(--surface-alt);
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid var(--border);
+}
+
+.no-avatar {
+  background: var(--avatar-placeholder);
+}
+
+.pagination button {
+  background: var(--pagination-bg);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.fab {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+.fab:hover {
+  background: var(--button-hover);
+}
+
+.action-icon.edit:hover {
+  background: var(--edit-hover);
+}
+
+.action-icon.delete:hover {
+  background: var(--delete-hover);
 }
 </style>

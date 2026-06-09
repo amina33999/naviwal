@@ -261,9 +261,13 @@ function onPhoneInput(e) {
   display: block;
 }
 
+/* BACKDROP */
 .modal-backdrop {
   position: fixed;
-  top:0; left:0; width:100%; height:100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0,0,0,0.5);
   display: flex;
   align-items: center;
@@ -271,30 +275,35 @@ function onPhoneInput(e) {
   z-index: 2000;
 }
 
+/* MODAL */
 .modal-container {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 32px;
   width: 90%;
   max-width: 720px;
   max-height: 85vh;
   overflow-y: auto;
   padding: 1.8rem;
+  box-shadow: var(--shadow-strong);
 }
 
+/* TITLE */
 .modal-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  color: var(--text);
 }
 
 .close-icon {
   background: none;
   border: none;
-  font-size: 1.6rem;
   cursor: pointer;
 }
 
+/* GRID */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -305,6 +314,7 @@ function onPhoneInput(e) {
   grid-column: span 2;
 }
 
+/* FIELD */
 .field {
   display: flex;
   flex-direction: column;
@@ -313,33 +323,37 @@ function onPhoneInput(e) {
 
 .field label {
   font-weight: 500;
+  color: var(--text);
 }
 
-.field input, .field select, .field textarea {
+/* INPUTS */
+.field input,
+.field select,
+.field textarea {
   padding: 0.7rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 16px;
   font-family: inherit;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
-/* Комбинированный список - одна строка */
-.combobox {
-  width: 100%;
-}
-
+/* COMBOBOX */
 .combobox input {
   width: 100%;
   padding: 0.7rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 16px;
-  font-family: inherit;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
 .combobox input:focus {
   outline: none;
-  border-color: #0f172a;
+  border-color: var(--text);
 }
 
+/* PHOTO */
 .photo-preview {
   display: flex;
   align-items: center;
@@ -350,6 +364,7 @@ function onPhoneInput(e) {
 .photo-preview img {
   max-width: 80px;
   border-radius: 12px;
+  border: 1px solid var(--border);
 }
 
 .remove-photo {
@@ -360,6 +375,7 @@ function onPhoneInput(e) {
   font-size: 1rem;
 }
 
+/* ERRORS */
 .error {
   color: #ef4444;
   font-size: 0.7rem;
@@ -370,8 +386,10 @@ function onPhoneInput(e) {
 .error.general {
   text-align: center;
   margin-bottom: 1rem;
+  color: #ef4444;
 }
 
+/* BUTTONS */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -379,30 +397,37 @@ function onPhoneInput(e) {
   margin-top: 1.5rem;
 }
 
-.btn-save, .btn-cancel {
+.btn-save {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 40px;
   cursor: pointer;
 }
 
-.btn-save {
-  background: #0f172a;
-  color: white;
-  border: none;
+.btn-save:hover {
+  background: var(--button-hover);
 }
 
 .btn-cancel {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  cursor: pointer;
 }
 
 @media (max-width: 640px) {
   .modal-container {
     padding: 1.2rem;
   }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
+
   .full-width {
     grid-column: span 1;
   }

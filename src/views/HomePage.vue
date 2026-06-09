@@ -69,7 +69,7 @@ function handleScroll() {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const windowHeight = window.innerHeight
   const documentHeight = document.documentElement.scrollHeight
-  
+
   if (scrollTop + windowHeight >= documentHeight - 200) {
     loadMore()
   }
@@ -98,7 +98,8 @@ const totalCount = computed(() => employees.value.length)
         </div>
         <div class="custom-select__options" v-if="deptDropdownOpen">
           <div class="custom-select__option" @click.stop="selectDepartment('all')">Все отделы</div>
-          <div v-for="dept in departments" :key="dept" class="custom-select__option" @click.stop="selectDepartment(dept)">{{ dept }}</div>
+          <div v-for="dept in departments" :key="dept" class="custom-select__option"
+            @click.stop="selectDepartment(dept)">{{ dept }}</div>
         </div>
       </div>
 
@@ -109,15 +110,16 @@ const totalCount = computed(() => employees.value.length)
         </div>
         <div class="custom-select__options" v-if="posDropdownOpen">
           <div class="custom-select__option" @click.stop="selectPosition('all')">Все должности</div>
-          <div v-for="pos in allPositions" :key="pos" class="custom-select__option" @click.stop="selectPosition(pos)">{{ pos }}</div>
+          <div v-for="pos in allPositions" :key="pos" class="custom-select__option" @click.stop="selectPosition(pos)">{{
+            pos }}</div>
         </div>
       </div>
-      
+
       <div class="search-field">
         <input type="text" v-model="searchQuery" placeholder="Поиск">
         <img :src="searchIcon" alt="Поиск" class="search-icon">
       </div>
-      
+
       <button class="reset-filters-btn" @click="resetFilters">Сбросить фильтры</button>
     </div>
 
@@ -125,21 +127,21 @@ const totalCount = computed(() => employees.value.length)
       <p>Сотрудники не найдены</p>
       <p class="empty-hint">Попробуйте изменить параметры поиска или фильтры</p>
     </div>
-    
+
     <div v-else>
       <div class="employees-grid">
         <EmployeeCard v-for="emp in visibleEmployees" :key="emp.id" :employee="emp" />
       </div>
-      
+
       <div v-if="loading" class="loading-indicator">
         <div class="spinner"></div>
         <span>Загружаем ещё...</span>
       </div>
-      
+
       <div v-else-if="!hasMore && visibleEmployees.length > 0" class="end-message">
         {{ visibleEmployees.length }} из {{ totalCount }} сотрудников
       </div>
-      
+
       <div v-if="hasMore && !loading" class="load-more-btn-container">
         <button class="load-more-btn" @click="loadMore">Показать ещё</button>
       </div>
@@ -166,12 +168,13 @@ const totalCount = computed(() => employees.value.length)
 .custom-select {
   position: relative;
   min-width: 260px;
-  background: white;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
   border: none;
   border-radius: 60px;
   cursor: pointer;
   user-select: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  color: var(--text);
 }
 
 .custom-select__trigger {
@@ -179,15 +182,19 @@ const totalCount = computed(() => employees.value.length)
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 1.5rem;
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 60px;
   font-size: 1rem;
-  color: #1e293b;
+}
+
+.custom-select__trigger span {
+  color: var(--text);
 }
 
 .custom-select__arrow {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--muted);
 }
 
 .custom-select__options {
@@ -195,20 +202,22 @@ const totalCount = computed(() => employees.value.length)
   top: calc(100% + 6px);
   left: 0;
   width: 100%;
-  background: white;
+  background: var(--surface);
+  box-shadow: var(--shadow-strong);
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   z-index: 20;
 }
 
 .custom-select__option {
   padding: 0.8rem 1.5rem;
   cursor: pointer;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .custom-select__option:hover {
-  background: #f1f5f9;
+  background: var(--hover);
 }
 
 .search-field {
@@ -222,14 +231,19 @@ const totalCount = computed(() => employees.value.length)
   padding: 0.9rem 1.2rem 0.9rem 2.8rem;
   border: none;
   border-radius: 60px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   font-size: 1rem;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.search-field input::placeholder {
+  color: var(--muted);
 }
 
 .search-field input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #e3e3e3;
+  box-shadow: 0 0 0 2px var(--border);
 }
 
 .search-icon {
@@ -244,9 +258,9 @@ const totalCount = computed(() => employees.value.length)
 }
 
 .reset-filters-btn {
-  background: #0f172a;
-  color: white;
-  border: 1px solid #cbd5e1;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border);
   border-radius: 60px;
   padding: 0.9rem 1.5rem;
   font-size: 0.9rem;
@@ -256,7 +270,7 @@ const totalCount = computed(() => employees.value.length)
 }
 
 .reset-filters-btn:hover {
-  background: #000000;
+  background: var(--button-hover);
 }
 
 .employees-grid {
@@ -267,17 +281,18 @@ const totalCount = computed(() => employees.value.length)
 
 .empty-state {
   text-align: center;
-  background: white;
+  background: var(--surface);
+  color: var(--muted);
   border-radius: 32px;
   padding: 3rem;
-  color: #64748b;
   font-size: 1.2rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .empty-hint {
   font-size: 0.9rem;
   margin-top: 0.5rem;
-  color: #94a3b8;
+  color: var(--muted);
 }
 
 .loading-indicator {
@@ -286,26 +301,28 @@ const totalCount = computed(() => employees.value.length)
   align-items: center;
   gap: 1rem;
   padding: 2rem;
-  color: #64748b;
+  color: var(--muted);
 }
 
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #0f172a;
+  border: 3px solid var(--border);
+  border-top-color: var(--button-bg);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .end-message {
   text-align: center;
   padding: 2rem;
-  color: #94a3b8;
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
@@ -316,8 +333,9 @@ const totalCount = computed(() => employees.value.length)
 }
 
 .load-more-btn {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-radius: 60px;
   padding: 0.8rem 2rem;
   cursor: pointer;
@@ -326,14 +344,14 @@ const totalCount = computed(() => employees.value.length)
 }
 
 .load-more-btn:hover {
-  background: #0f172a;
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
 }
 
 .results-info {
   text-align: center;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--muted);
   margin-bottom: 1.5rem;
 }
 
@@ -348,12 +366,16 @@ const totalCount = computed(() => employees.value.length)
     flex-direction: column;
     align-items: stretch;
   }
-  .custom-select, .search-field {
+
+  .custom-select,
+  .search-field {
     max-width: none;
   }
+
   .reset-filters-btn {
     width: 100%;
   }
+
   .employees-grid {
     grid-template-columns: 1fr;
   }

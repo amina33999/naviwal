@@ -48,31 +48,36 @@ function goToDetail() {
 
 <style scoped>
 .employee-card {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
+
   border-radius: 24px;
   display: flex;
   align-items: center;
   gap: 1.5rem;
   padding: 1.2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+
+  box-shadow: var(--shadow-soft);
+
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   cursor: pointer;
 }
 
 .employee-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-strong);
 }
 
+/* фото */
 .card-photo {
   flex-shrink: 0;
   width: 140px;
   height: 140px;
-  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+
   border-radius: 20px;
   overflow: hidden;
+
+  background: var(--surface-alt);
 }
 
 .card-photo img {
@@ -84,9 +89,10 @@ function goToDetail() {
 .photo-placeholder {
   width: 100%;
   height: 100%;
-  background: #e2e8f0;
+  background: var(--surface-alt);
 }
 
+/* инфо */
 .card-info {
   flex: 1;
   display: flex;
@@ -104,62 +110,70 @@ function goToDetail() {
 .surname {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .firstname {
   font-size: 1.1rem;
-  color: #334155;
+  color: var(--muted);
 }
 
 .position {
   font-size: 1rem;
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text);
+  opacity: 0.9;
   margin-top: 0.5rem;
 }
 
 .department {
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--muted);
 }
 
+/* кнопка */
 .card-action {
-  margin-top: auto; 
+  margin-top: auto;
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .detail-btn {
-  background: #0f172a;
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
+
   border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 60px;
+
   font-size: 0.85rem;
   font-weight: 500;
+
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .detail-btn:hover {
-  background: #000;
+  background: var(--button-hover);
 }
 
-/* Адаптивность */
+/* адаптив */
 @media (max-width: 768px) {
   .employee-card {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .card-photo {
     width: 100px;
     height: 100px;
   }
+
   .surname {
     font-size: 1.2rem;
   }
+
   .firstname {
     font-size: 0.9rem;
   }

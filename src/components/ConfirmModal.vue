@@ -24,58 +24,87 @@ const emit = defineEmits(["confirm", "cancel"]);
 <style scoped>
 .confirm-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+
   background: rgba(0, 0, 0, 0.5);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   z-index: 2100;
 }
 
+/* модалка */
 .confirm-modal {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
+
   border-radius: 28px;
   padding: 1.5rem;
+
   width: 90%;
   max-width: 380px;
+
   text-align: center;
+
+  box-shadow: var(--shadow-strong);
 }
 
+/* заголовок */
 .confirm-modal h3 {
   margin-bottom: 0.75rem;
+  color: var(--text);
 }
 
+/* текст */
 .confirm-modal p {
   margin-bottom: 1.5rem;
+  color: var(--muted);
 }
 
+/* кнопки */
 .confirm-actions {
   display: flex;
   gap: 1rem;
   justify-content: center;
 }
 
+/* опасная кнопка */
 .btn-danger {
   background: #ef4444;
   color: white;
+
   border: none;
   padding: 0.5rem 1.2rem;
   border-radius: 40px;
+
   cursor: pointer;
+  transition: 0.2s;
 }
 
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* вторичная кнопка */
 .btn-secondary {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-alt);
+  color: var(--text);
+
+  border: 1px solid var(--border);
   padding: 0.5rem 1.2rem;
   border-radius: 40px;
+
   cursor: pointer;
+  transition: 0.2s;
 }
 
-/* Адаптивность */
+.btn-secondary:hover {
+  background: var(--hover);
+}
+
+/* адаптив */
 @media (max-width: 640px) {
   .confirm-modal {
     padding: 1.2rem;

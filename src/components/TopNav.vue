@@ -1,6 +1,9 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useAuth } from "../composables/useAuth";
+import { darkTheme, toggleTheme } from "../composables/useTheme";
+import lightThemeIcon from "../assets/icons/lightTheme.svg";
+import darkThemeIcon from "../assets/icons/darkTheme.svg"
 
 const router = useRouter();
 const { isAuthenticated, isAdmin, logout } = useAuth();
@@ -18,6 +21,8 @@ function handleLogout() {
   logout();
   router.push({ name: "Home" });
 }
+
+console.log(lightThemeIcon, darkThemeIcon)
 </script>
 
 <template>
@@ -30,24 +35,20 @@ function handleLogout() {
 
     <div class="topnav__center">
       <div class="topnav__buttons">
-        <button
-          @click="goToHome"
-          class="nav-btn"
-          :class="{ active: $route.name === 'Home' }"
-        >
+        <button @click="goToHome" class="nav-btn" :class="{ active: $route.name === 'Home' }">
           Сотрудники
         </button>
-        <button
-          v-if="isAdmin"
-          @click="goToAdmin"
-          class="nav-btn"
-          :class="{ active: $route.name === 'Admin' }"
-        >
+        <button v-if="isAdmin" @click="goToAdmin" class="nav-btn" :class="{ active: $route.name === 'Admin' }">
           HR-панель
         </button>
       </div>
 
       <div class="topnav__auth">
+        <button @click="toggleTheme" class="theme-btn" :title="darkTheme ? 'Светлая тема' : 'Тёмная тема'">
+          <img :src="darkTheme ? lightThemeIcon : darkThemeIcon" alt="theme icon" class="theme-icon" />
+        </button>
+        
+
         <div v-if="!isAuthenticated">
           <button @click="goToLogin" class="btn-outline">Вход</button>
         </div>
@@ -164,10 +165,12 @@ function handleLogout() {
     gap: 1rem;
     padding: 1rem;
   }
+
   .topnav__buttons {
     width: 100%;
     justify-content: center;
   }
+
   .topnav__auth {
     width: 100%;
     text-align: center;
@@ -187,7 +190,7 @@ function handleLogout() {
   padding: 0.6rem 1.2rem;
   border-radius: 60px;
   cursor: pointer;
-  transition: all 0.2s; 
+  transition: all 0.2s;
 }
 
 .topnav__auth .btn-outline:hover {
@@ -204,18 +207,54 @@ function handleLogout() {
     gap: 1rem;
     padding: 1rem;
   }
+
   .topnav__center {
     flex-direction: column;
     width: 100%;
     gap: 0.8rem;
   }
+
   .topnav__buttons {
     width: 100%;
     justify-content: center;
   }
+
   .topnav__auth {
     width: 100%;
     text-align: center;
   }
+}
+
+.theme-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid #475569;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-btn:hover {
+  background: #2d3748;
+  border-color: #64748b;
+  box-shadow: 0 0 10px #43557fbc;
+}
+
+.topnav__auth {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 </style>

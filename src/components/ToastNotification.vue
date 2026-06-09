@@ -20,11 +20,7 @@ window.showToast = showToast
 <template>
   <Teleport to="body">
     <div class="toast-container">
-      <div 
-        v-for="toast in toasts" 
-        :key="toast.id"
-        :class="['toast', toast.type]"
-      >
+      <div v-for="toast in toasts" :key="toast.id" :class="['toast', toast.type]">
         <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '⚠' }}</span>
         {{ toast.message }}
       </div>
@@ -51,12 +47,19 @@ window.showToast = showToast
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 60px;
-  background: #0f172a;
-  color: white;
+
+  background: var(--surface);
+  color: var(--text);
+
   font-size: 0.9rem;
   font-weight: 500;
+
   animation: slideUp 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  box-shadow: var(--shadow-soft);
+
+  border: 1px solid var(--border);
+
   pointer-events: auto;
 }
 
@@ -78,6 +81,7 @@ window.showToast = showToast
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

@@ -90,23 +90,29 @@ async function handleLogin() {
   justify-content: center;
   align-items: center;
   min-height: 60vh;
+  background: var(--bg);
 }
 
+/* карточка */
 .login-card {
-  background: white;
+  background: var(--surface);
+  color: var(--text);
+
   padding: 2rem;
   border-radius: 1.5rem;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  box-shadow: var(--shadow-soft);
 }
 
 .login-card h2 {
   margin-bottom: 1.5rem;
   text-align: center;
-  color: #0f172a;
+  color: var(--text);
 }
 
+/* поля */
 .field {
   margin-bottom: 1rem;
 }
@@ -115,31 +121,53 @@ async function handleLogin() {
   display: block;
   margin-bottom: 0.25rem;
   font-weight: 500;
+  color: var(--text);
 }
 
 .field input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
+
   font-size: 0.95rem;
+
+  background: var(--surface);
+  color: var(--text);
 }
 
+.field input::placeholder {
+  color: var(--muted);
+}
+
+.field input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border);
+}
+
+/* кнопка */
 .btn-primary {
   width: 100%;
   padding: 0.75rem;
-  background: #0f172a;
-  color: white;
+
+  background: var(--button-bg);
+  color: var(--button-text);
+
   border: none;
   border-radius: 0.75rem;
+
   font-weight: 600;
   cursor: pointer;
+
+  transition: 0.2s;
 }
 
 .btn-primary:hover {
-  background: #000;
+  background: var(--button-hover);
 }
 
+/* ошибки */
 .error {
   color: #ef4444;
   font-size: 0.75rem;
@@ -152,10 +180,11 @@ async function handleLogin() {
   margin-bottom: 1rem;
 }
 
-.debug-hint {
-  font-size: 0.7rem;
-  color: #64748b;
-  text-align: center;
-  margin-top: 1rem;
+/* маленькая адаптация */
+@media (max-width: 640px) {
+  .login-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
 }
 </style>
