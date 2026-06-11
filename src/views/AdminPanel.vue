@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
 import EmployeeFormModal from '../components/EmployeeFormModal.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
-
+import userPlug from "../assets/icons/userPlug.png"
 import editIcon from '../assets/icons/edit.svg'
 import trashIcon from '../assets/icons/trash.svg'
 import searchIcon from '../assets/icons/search.svg'
@@ -143,8 +143,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
           <tbody>
             <tr v-for="emp in paginatedEmployees" :key="emp.id">
               <td class="photo-cell">
-                <img v-if="emp.photo" :src="emp.photo" class="table-avatar">
-                <div v-else class="no-avatar"></div>
+                <img :src="emp.photo || userPlug" class="table-avatar" alt="Фото сотрудника" />
               </td>
               <td><strong>{{ emp.fullName }}</strong></td>
               <td>{{ emp.position }}</td>
@@ -153,12 +152,15 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
               <td>{{ emp.phone }}</td>
               <td>{{ formatDate(emp.hireDate) }}</td>
               <td class="actions-cell">
-                <button @click="openEditModal(emp)" class="action-icon edit" title="Редактировать">
-                  <img :src="editIcon" alt="Редактировать">
-                </button>
-                <button @click="requestDelete(emp)" class="action-icon delete" title="Удалить">
-                  <img :src="trashIcon" alt="Удалить">
-                </button>
+                <div class="actions">
+                  <button @click="openEditModal(emp)" class="action-icon edit">
+                    <img :src="editIcon" alt="Редактировать">
+                  </button>
+
+                  <button @click="requestDelete(emp)" class="action-icon delete">
+                    <img :src="trashIcon" alt="Удалить">
+                  </button>
+                </div>
               </td>
             </tr>
             <tr v-if="filteredEmployees.length === 0">
@@ -301,79 +303,6 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
   background: #000000;
 }
 
-.admin-table-wrapper {
-  background: white;
-  border-radius: 32px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.admin-table-container {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.admin-table th,
-.admin-table td {
-  padding: 1rem 0.8rem;
-  text-align: left;
-  border-bottom: 1px solid #eef2f6;
-  vertical-align: middle;
-}
-
-.admin-table th {
-  font-weight: 600;
-  color: #475569;
-}
-
-.table-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.no-avatar {
-  width: 48px;
-  height: 48px;
-  background: #e2e8f0;
-  border-radius: 50%;
-}
-
-.actions-cell {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.action-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.3rem;
-  border-radius: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-icon img {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-
-.action-icon.edit:hover {
-  background: #dbeafe;
-}
-
-.action-icon.delete:hover {
-  background: #fee2e2;
-}
 
 .pagination {
   display: flex;
@@ -547,10 +476,7 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
 
 /* Действия */
 .actions-cell {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
 }
 
 .action-icon {
@@ -628,7 +554,9 @@ function cancelDelete() { showConfirm.value = false; employeeToDelete.value = nu
 
 .admin-table-wrapper {
   background: var(--surface);
+  border-radius: 32px;
   box-shadow: var(--shadow-soft);
+  overflow: hidden;
 }
 
 .admin-table th {

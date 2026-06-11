@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import userPlug from "../assets/icons/userPlug.png"
 
 const props = defineProps({
   employee: {
@@ -27,11 +28,12 @@ function goToDetail() {
 </script>
 
 <template>
-  <div class="employee-card" @click="goToDetail">
+  <div class="employee-card">
     <div class="card-photo">
       <img v-if="employee.photo" :src="employee.photo" alt="фото" />
-      <div v-else class="photo-placeholder"></div>
+      <img v-else :src="userPlug" alt="заглушка" />
     </div>
+
     <div class="card-info">
       <div class="name-block">
         <span class="surname">{{ surname }}</span>
@@ -40,8 +42,9 @@ function goToDetail() {
       <div class="position">{{ employee.position }}</div>
       <div class="department">{{ employee.department }}</div>
     </div>
+
     <div class="card-action">
-      <button class="detail-btn">Подробнее</button>
+      <button class="detail-btn" @click="goToDetail">Подробнее</button>
     </div>
   </div>
 </template>
@@ -52,15 +55,24 @@ function goToDetail() {
   color: var(--text);
 
   border-radius: 24px;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
   padding: 1.2rem;
 
-  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
 
+  box-shadow: var(--shadow-soft);
   transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+
   cursor: pointer;
+  overflow: hidden;
+
+  width: 100%;
+  max-width: 56rem;
+
+  min-width: 0;
+
+  position: relative;
 }
 
 .employee-card:hover {
@@ -86,42 +98,46 @@ function goToDetail() {
   object-fit: cover;
 }
 
-.photo-placeholder {
-  width: 100%;
-  height: 100%;
-  background: var(--surface-alt);
-}
-
 /* инфо */
 .card-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+
+  min-width: 0;
 }
 
 .name-block {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: baseline;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  min-width: 0;
+}
+
+.name-block span {
+  display: block;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  max-width: 100%;
 }
 
 .surname {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  color: var(--text);
 }
 
 .firstname {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 
 .position {
   font-size: 1rem;
-  font-weight: 500;
-  color: var(--text);
   opacity: 0.9;
   margin-top: 0.5rem;
 }
@@ -131,12 +147,10 @@ function goToDetail() {
   color: var(--muted);
 }
 
-/* кнопка */
 .card-action {
-  margin-top: auto;
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
 }
 
 .detail-btn {
@@ -144,38 +158,53 @@ function goToDetail() {
   color: var(--button-text);
 
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 60px;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
 
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
 
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .detail-btn:hover {
   background: var(--button-hover);
 }
 
-/* адаптив */
 @media (max-width: 768px) {
   .employee-card {
     flex-direction: column;
     text-align: center;
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .card-photo {
     width: 100px;
     height: 100px;
+    margin: 0 auto;
   }
 
-  .surname {
-    font-size: 1.2rem;
+  .card-info {
+    align-items: center;
   }
 
-  .firstname {
-    font-size: 0.9rem;
+  .name-block span {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .card-action {
+    position: static;
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .detail-btn {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.9rem;
   }
 }
 </style>

@@ -60,7 +60,7 @@ export function useEmployees() {
   function getAll() {
     return employees.value;
   }
-  
+
   function getById(id) {
     return employees.value.find((emp) => emp.id === id);
   }
@@ -128,33 +128,51 @@ export function useEmployees() {
       "Телефон",
       "Дата приёма",
       "Биография",
-    ];
+    ]
+
     const rows = employeeList.map((emp) => [
-      `"${emp.fullName}"`,
-      `"${emp.position}"`,
-      `"${emp.department}"`,
+      emp.fullName,
+      emp.position,
+      emp.department,
       emp.email,
       emp.phone,
       emp.hireDate,
-      `"${emp.bio || ''}"`,
-    ]);
-    const csvContent = [headers, ...rows]
-      .map((row) => row.join(","))
-      .join("\n");
+      emp.bio || '',
+    ])
+
+    const delimiter = ";"  
+
+    const csvContent =
+      [headers, ...rows]
+        .map(row =>
+          row
+            .map(field => `"${String(field).replaceAll('"', '""')}"`)
+            .join(delimiter)
+        )
+        .join("\n")
+
+ 
     const blob = new Blob(["\uFEFF" + csvContent], {
       type: "text/csv;charset=utf-8;",
-    });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute("download", `employees_${new Date().toISOString().slice(0,19)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
+    })
+
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+
+    link.href = url
+    link.setAttribute(
+      "download",
+      `employees_${new Date().toISOString().slice(0, 19)}.csv`
+    )
+
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    URL.revokeObjectURL(url)
+
     if (window.showToast) {
-      window.showToast(`Экспортировано ${employeeList.length} сотрудников`, 'success');
+      window.showToast(`Экспортировано ${employeeList.length} сотрудников`, 'success')
     }
   }
 

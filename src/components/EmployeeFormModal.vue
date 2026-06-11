@@ -5,7 +5,13 @@ import closeIcon from '../assets/icons/close.svg'
 
 const props = defineProps({ employee: Object })
 const emit = defineEmits(['close'])
-const { add, update, departments } = useEmployees()
+const { add, update, departments, employees } = useEmployees()
+
+const allowedTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/webp'
+]
 
 const form = reactive({
   fullName: '',
@@ -40,17 +46,41 @@ function clearError(field) {
 function onFileChange(e) {
   const file = e.target.files[0]
   if (!file) return
+
+  // очищаем старую ошибку
+  delete errors.value.photo
+
+  if (!allowedTypes.includes(file.type)) {
+    errors.value.photo =
+      'Допустимы только изображения JPG, JPEG, PNG и WEBP.'
+
+    e.target.value = ''
+    form.photo = null
+    photoPreview.value = null
+    return
+  }
+
   const reader = new FileReader()
-  reader.onload = ev => {
+
+  reader.onload = (ev) => {
     form.photo = ev.target.result
     photoPreview.value = ev.target.result
   }
+
   reader.readAsDataURL(file)
 }
 
 function removePhoto() {
   form.photo = null
   photoPreview.value = null
+}
+
+function normalizeEmail(email) {
+  return email.trim().toLowerCase()
+}
+
+function normalizePhone(phone) {
+  return phone.replace(/\D/g, '')
 }
 
 function validate() {
@@ -78,16 +108,36 @@ function validate() {
   }
 
   if (!form.phone.trim()) {
-  errors.value.phone = 'Телефон обязателен'
+    errors.value.phone = 'Телефон обязателен'
   } else if (form.phone.replace(/\D/g, '').length !== 11) {
-  errors.value.phone = 'Введите корректный номер из 11 цифр'
+    errors.value.phone = 'Введите корректный номер из 11 цифр'
+  }
+
+  const currentId = props.employee?.id
+
+  const emailExists = employees.value.some(emp => {
+    return emp.id !== currentId &&
+      normalizeEmail(emp.email) === normalizeEmail(form.email)
+  })
+
+  if (emailExists) {
+    errors.value.email = 'Такой email уже используется'
+  }
+
+  const phoneExists = employees.value.some(emp => {
+    return emp.id !== currentId &&
+      normalizePhone(emp.phone) === normalizePhone(form.phone)
+  })
+
+  if (phoneExists) {
+    errors.value.phone = 'Такой телефон уже используется'
   }
 
   if (!form.hireDate) {
     errors.value.hireDate = 'Дата приёма обязательна'
   } else {
     const today = new Date()
-    today.setHours(0,0,0,0)
+    today.setHours(0, 0, 0, 0)
     const hire = new Date(form.hireDate)
     if (hire > today) {
       errors.value.hireDate = 'Дата приёма не может быть в будущем'
@@ -124,17 +174,17 @@ const allPositions = computed(() => {
 function formatPhone(value) {
   let cleaned = value.replace(/\D/g, '')
   if (cleaned.length > 11) cleaned = cleaned.slice(0, 11)
-  
+
   if (cleaned.length === 0) return ''
   if (cleaned[0] === '8') cleaned = '7' + cleaned.slice(1)
   if (cleaned[0] !== '7') cleaned = '7' + cleaned
-  
+
   let result = '+7'
   if (cleaned.length > 1) result += ' (' + cleaned.slice(1, 4)
   if (cleaned.length >= 5) result += ') ' + cleaned.slice(4, 7)
   if (cleaned.length >= 8) result += '-' + cleaned.slice(7, 9)
   if (cleaned.length >= 10) result += '-' + cleaned.slice(9, 11)
-  
+
   return result
 }
 
@@ -144,7 +194,7 @@ function onPhoneInput(e) {
   const oldLength = raw.length
   const formatted = formatPhone(raw)
   form.phone = formatted
-  
+
   setTimeout(() => {
     const newLength = formatted.length
     const diff = newLength - oldLength
@@ -155,7 +205,7 @@ function onPhoneInput(e) {
 
 <template>
   <Teleport to="body">
-    <div class="modal-backdrop" @click.self="close">
+    <div class="modal-backdrop">
       <div class="modal-container">
         <div class="modal-title">
           <h2>{{ employee ? 'Редактировать сотрудника' : 'Добавить сотрудника' }}</h2>
@@ -165,85 +215,77 @@ function onPhoneInput(e) {
           <div class="form-grid">
             <div class="field full-width">
               <label>ФИО *</label>
-              <input v-model="form.fullName" type="text" @input="clearError('fullName')" placeholder="Иванов Иван Иванович">
+              <input v-model="form.fullName" type="text" @input="clearError('fullName')"
+                placeholder="Иванов Иван Иванович">
               <span v-if="errors.fullName" class="error">{{ errors.fullName }}</span>
             </div>
-            
+
             <!-- ДОЛЖНОСТЬ - комбинированный список (можно выбрать ИЛИ вписать) -->
             <div class="field">
               <label>Должность *</label>
               <div class="combobox">
-                <input 
-                  type="text"
-                  v-model="form.position"
-                  list="positions-list"
-                  @input="clearError('position')"
-                  placeholder="Выберите или введите должность"
-                  autocomplete="off"
-                >
+                <input type="text" v-model="form.position" list="positions-list" @input="clearError('position')"
+                  placeholder="Выберите или введите должность" autocomplete="off">
                 <datalist id="positions-list">
                   <option v-for="pos in allPositions" :key="pos" :value="pos"></option>
                 </datalist>
               </div>
               <span v-if="errors.position" class="error">{{ errors.position }}</span>
             </div>
-            
+
             <!-- ОТДЕЛ - комбинированный список (можно выбрать ИЛИ вписать) -->
             <div class="field">
               <label>Отдел *</label>
               <div class="combobox">
-                <input 
-                  type="text"
-                  v-model="form.department"
-                  list="departments-list"
-                  @input="clearError('department')"
-                  placeholder="Выберите или введите отдел"
-                  autocomplete="off"
-                >
+                <input type="text" v-model="form.department" list="departments-list" @input="clearError('department')"
+                  placeholder="Выберите или введите отдел" autocomplete="off">
                 <datalist id="departments-list">
                   <option v-for="dept in departments" :key="dept" :value="dept"></option>
                 </datalist>
               </div>
               <span v-if="errors.department" class="error">{{ errors.department }}</span>
             </div>
-            
+
             <div class="field">
               <label>Email *</label>
               <input type="email" v-model="form.email" @input="clearError('email')" placeholder="example@company.com">
               <span v-if="errors.email" class="error">{{ errors.email }}</span>
             </div>
-            
+
             <div class="field">
               <label>Телефон *</label>
-              <input
-              type="text" :value="form.phone" @input="onPhoneInput" @blur="clearError('phone')" placeholder="+7 (999) 999-99-99" maxlength="18">
-              
+              <input type="text" :value="form.phone" @input="onPhoneInput" @blur="clearError('phone')"
+                placeholder="+7 (999) 999-99-99" maxlength="18">
+
               <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
             </div>
-            
+
             <div class="field">
               <label>Дата приёма *</label>
               <input type="date" v-model="form.hireDate" @change="clearError('hireDate')">
               <span v-if="errors.hireDate" class="error">{{ errors.hireDate }}</span>
             </div>
-            
+
             <div class="field full-width">
               <label>Фото</label>
               <input type="file" accept="image/*" @change="onFileChange">
+              <span v-if="errors.photo" class="error">
+                {{ errors.photo }}
+              </span>
               <div v-if="photoPreview" class="photo-preview">
                 <img :src="photoPreview">
                 <button type="button" class="remove-photo" @click="removePhoto">✕</button>
               </div>
             </div>
-            
+
             <div class="field full-width">
               <label>Биография</label>
               <textarea v-model="form.bio" rows="3" placeholder="Краткая информация о сотруднике..."></textarea>
             </div>
           </div>
-          
+
           <div v-if="generalError" class="error general">{{ generalError }}</div>
-          
+
           <div class="modal-actions">
             <button type="submit" class="btn-save">Сохранить</button>
             <button type="button" class="btn-cancel" @click="close">Отмена</button>
@@ -268,7 +310,7 @@ function onPhoneInput(e) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEmployees } from '../composables/useEmployees'
-
+import userPlug from "../assets/icons/userPlug.png"
 import arrowLeftIcon from '../assets/icons/arrow-left.svg'
 
 const route = useRoute()
@@ -30,7 +30,7 @@ function goBack() {
     <div class="detail-card">
       <div class="detail-photo">
         <img v-if="employee.photo" :src="employee.photo" alt="Фото">
-        <div v-else class="photo-placeholder"></div>
+        <img v-else :src="userPlug" alt="Заглушка">
       </div>
 
       <div class="detail-info">
@@ -69,6 +69,7 @@ function goBack() {
   margin: 0 auto;
   padding: 1.5rem;
   color: var(--text);
+  min-width: 0;
 }
 
 /* кнопка назад */
@@ -104,16 +105,18 @@ function goBack() {
   border-radius: 32px;
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 3rem;
 
   padding: 3rem;
   box-shadow: var(--shadow-soft);
+  min-width: 0;
 }
 
 /* фото */
 .detail-photo {
   flex: 1;
-  min-width: 300px;
+  min-width: 260px;
 }
 
 .detail-photo img {
@@ -122,48 +125,57 @@ function goBack() {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 28px;
-
   background: var(--surface-alt);
 }
 
 .photo-placeholder {
   width: 100%;
   aspect-ratio: 4 / 5;
-
-  background: linear-gradient(
-    145deg,
-    var(--surface-alt),
-    var(--border)
-  );
-
+  background: linear-gradient(145deg,
+      var(--surface-alt),
+      var(--border));
   border-radius: 28px;
 }
 
 /* текст */
 .detail-info {
-  flex: 2;
+  flex: 2 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
 .fullname {
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 3vw, 3rem);
   font-weight: 700;
   margin: 0;
   color: var(--text);
+
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  line-height: 1.1;
 }
 
 .position {
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
   font-weight: 500;
   color: var(--text);
   opacity: 0.9;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .department {
-  font-size: 1.4rem;
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
   color: var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* блок контактов */
@@ -176,12 +188,14 @@ function goBack() {
   padding: 1.5rem;
   border-radius: 24px;
   margin-top: 1rem;
+  min-width: 0;
 }
 
 .contact-item {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
 }
 
 .contact-item .label {
@@ -196,6 +210,9 @@ function goBack() {
   font-size: 1.1rem;
   font-weight: 500;
   color: var(--text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* адаптив */
@@ -204,6 +221,11 @@ function goBack() {
     flex-direction: column;
     padding: 1.5rem;
     gap: 1.5rem;
+  }
+
+  .detail-photo {
+    min-width: 0;
+    width: 100%;
   }
 
   .fullname {
