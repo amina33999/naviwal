@@ -47,7 +47,6 @@ function onFileChange(e) {
   const file = e.target.files[0]
   if (!file) return
 
-  // очищаем старую ошибку
   delete errors.value.photo
 
   if (!allowedTypes.includes(file.type)) {
@@ -91,12 +90,16 @@ function validate() {
     errors.value.fullName = 'ФИО обязательно для заполнения'
   } else if (form.fullName.trim().length < 5) {
     errors.value.fullName = 'ФИО должно содержать минимум 5 символов'
+  } else if (!/^[а-яА-Яa-zA-Z\s-]+$/.test(form.fullName.trim())) {
+    errors.value.fullName = 'ФИО может содержать только буквы, пробелы и дефисы'
   }
 
   if (!form.position.trim()) {
     errors.value.position = 'Введите или выберите должность'
+  } else if (!/^[а-яА-Яa-zA-Z\s-]+$/.test(form.position.trim())) {
+    errors.value.position = 'Должность может содержать только буквы, пробелы и дефисы'
   }
-
+  
   if (!form.department.trim()) {
     errors.value.department = 'Введите или выберите отдел'
   }
@@ -139,8 +142,13 @@ function validate() {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const hire = new Date(form.hireDate)
+    const minDate = new Date('1970-01-01')
+    minDate.setHours(0, 0, 0, 0)
+    
     if (hire > today) {
       errors.value.hireDate = 'Дата приёма не может быть в будущем'
+    } else if (hire < minDate) {
+      errors.value.hireDate = 'Дата приёма должна быть позже 1970 года'
     }
   }
 
