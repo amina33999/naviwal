@@ -5,12 +5,15 @@ import HomePage from './views/HomePage.vue'
 import EmployeeDetail from './views/EmployeeDetail.vue'
 import AdminPanel from './views/AdminPanel.vue'
 import LoginPage from './views/LoginPage.vue'
+import NotFound from './views/NotFound.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: HomePage },
   { path: '/employee/:id', name: 'EmployeeDetail', component: EmployeeDetail },
   { path: '/admin', name: 'Admin', component: AdminPanel, meta: { requiresAdmin: true } },
-  { path: '/login', name: 'Login', component: LoginPage, meta: { guestOnly: true } }
+  { path: '/login', name: 'Login', component: LoginPage, meta: { guestOnly: true } },
+  { path: '/404', name: 'NotFound', component: NotFound, meta: { is404: true } },
+  { path: '/:pathMatch(.*)*', redirect: '/404' }
 ]
 
 export const router = createRouter({
@@ -21,7 +24,9 @@ export const router = createRouter({
 router.beforeEach((to, from, next) => {
   const { isAdmin, isAuthenticated } = useAuth()
   
-  if (to.meta.requiresAdmin && !isAdmin.value) {
+  if (to.meta.is404) {
+    next()
+  } else if (to.meta.requiresAdmin && !isAdmin.value) {
     next({ name: 'Home' })
   } else if (to.meta.guestOnly && isAuthenticated.value) {
     next({ name: 'Home' })

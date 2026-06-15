@@ -51,6 +51,10 @@ function goBack() {
             <span class="label">Дата приёма на работу</span>
             <span class="value">{{ formatDate(employee.hireDate) }}</span>
           </div>
+          <div class="contact-item" v-if="employee.bio">
+            <span class="label">Биография</span>
+            <span class="value bio-text">{{ employee.bio }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -243,5 +247,10 @@ function goBack() {
   .contact-item .value {
     font-size: 1rem;
   }
+}
+
+.bio-text {
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 </style>
