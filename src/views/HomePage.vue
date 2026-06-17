@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
 import EmployeeCard from '../components/EmployeeCard.vue'
 import searchIcon from '../assets/icons/search.svg'
-import userPlug from "../assets/icons/userplug.png"
+import userPlug from "../assets/icons/user-plug.png"
 
 const { 
   employees, 

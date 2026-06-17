@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useEmployees } from '../composables/useEmployees'
-import userPlug from "../assets/icons/userPlug.png"
+import userPlug from "../assets/icons/user-plug.png"
 import arrowLeftIcon from '../assets/icons/arrow-left.svg'
 
 const route = useRoute()
