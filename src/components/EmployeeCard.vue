@@ -1,50 +1,60 @@
 <script setup>
-import { computed } from "vue";
-import { useRouter } from "vue-router";
+import { computed } from 'vue'
+import { useEmployees } from '../composables/useEmployees'
 import userPlug from "../assets/icons/userPlug.png"
 
 const props = defineProps({
   employee: {
     type: Object,
-    required: true,
-  },
-});
-const router = useRouter();
+    required: true
+  }
+})
 
-// Разбиваем ФИО
-const surname = computed(() => {
-  const parts = props.employee.fullName.trim().split(" ");
-  return parts[0] || "";
-});
+const { formatDate } = useEmployees()
 
-const firstAndMiddle = computed(() => {
-  const parts = props.employee.fullName.trim().split(" ");
-  return parts.slice(1).join(" ") || "";
-});
-
-function goToDetail() {
-  router.push({ name: "EmployeeDetail", params: { id: props.employee.id } });
-}
+const truncatedBio = computed(() => {
+  const bio = props.employee?.bio || ''
+  const trimmed = bio.trim()
+  if (!trimmed) return ''
+  return trimmed.length > 90 ? trimmed.slice(0, 90) + '...' : trimmed
+})
 </script>
 
 <template>
   <div class="employee-card">
-    <div class="card-photo">
-      <img v-if="employee.photo" :src="employee.photo" alt="фото" />
-      <img v-else :src="userPlug" alt="заглушка" />
+    <!-- Левая часть: аватар -->
+    <div class="card-avatar-wrapper">
+      <img :src="employee.photo_url || userPlug" alt="Фото" class="employee-avatar">
     </div>
-
-    <div class="card-info">
-      <div class="name-block">
-        <span class="surname">{{ surname }}</span>
-        <span class="firstname">{{ firstAndMiddle }}</span>
+    
+    <!-- Правая основная часть -->
+    <div class="card-body">
+      <div class="card-top-row">
+        <div class="name-zone">
+          <h3 class="fullname" :title="employee.name">{{ employee.name || 'Без имени' }}</h3>
+          <p class="position">{{ employee.position || 'Должность не указана' }}</p>
+        </div>
+        <span class="department-badge">{{ employee.department_name || 'Отдел' }}</span>
       </div>
-      <div class="position">{{ employee.position }}</div>
-      <div class="department">{{ employee.department }}</div>
-    </div>
+      
+      <p class="bio-preview" v-if="truncatedBio">
+        {{ truncatedBio }}
+      </p>
 
-    <div class="card-action">
-      <button class="detail-btn" @click="goToDetail">Подробнее</button>
+      <div class="card-footer-row">
+        <div class="contacts-inline">
+          <span v-if="employee.email" class="contact-tag" :title="employee.email">
+            <span class="icon">✉</span> {{ employee.email }}
+          </span>
+          <span v-if="employee.phone" class="contact-tag highlighted">
+            <span class="icon">📞</span> Вн: <strong>{{ employee.phone }}</strong>
+          </span>
+        </div>
+        
+        <span class="hire-date" v-if="employee.hire_date">
+          С {{ formatDate(employee.hire_date) }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -52,159 +62,172 @@ function goToDetail() {
 <style scoped>
 .employee-card {
   background: var(--surface);
-  color: var(--text);
-
-  border-radius: 24px;
-  padding: 1.2rem;
-
+  border-radius: 16px;
+  /* Используем адаптивную тонкую рамку */
+  border: 1px solid var(--border, rgba(128, 128, 128, 0.15));
+  padding: 1.1rem;
   display: flex;
-  align-items: stretch;
-  gap: 1.5rem;
-
+  gap: 1.25rem;
+  align-items: flex-start;
   box-shadow: var(--shadow-soft);
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-
-  cursor: pointer;
-  overflow: hidden;
-
-  width: 100%;
-  max-width: 56rem;
-
-  min-width: 0;
-
-  position: relative;
+  transition: all 0.2s ease-in-out;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .employee-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
   box-shadow: var(--shadow-strong);
+  border-color: var(--button-bg, #4f46e5);
 }
 
-/* фото */
-.card-photo {
+.card-avatar-wrapper {
+  width: 68px;
+  height: 68px;
   flex-shrink: 0;
-  width: 140px;
-  height: 140px;
-
-  border-radius: 20px;
-  overflow: hidden;
-
-  background: var(--surface-alt);
 }
 
-.card-photo img {
+.employee-avatar {
   width: 100%;
   height: 100%;
+  border-radius: 14px;
   object-fit: cover;
+  /* Мягкая подложка, чтобы заглушка не резала глаз в темноте */
+  background: rgba(128, 128, 128, 0.1);
 }
 
-/* инфо */
-.card-info {
-  flex: 1;
+.card-body {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  flex-grow: 1;
+  min-width: 0;
+  height: 100%;
+}
 
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.name-zone {
   min-width: 0;
 }
 
-.name-block {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-
-  min-width: 0;
-}
-
-.name-block span {
-  display: block;
-
+.fullname {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.15rem 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  max-width: 100%;
-}
-
-.surname {
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.firstname {
-  font-size: 1rem;
-  color: var(--muted);
 }
 
 .position {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin-top: 0.5rem;
-}
-
-.department {
   font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.card-action {
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-}
-
-.detail-btn {
-  background: var(--button-bg);
-  color: var(--button-text);
-
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-
-  font-size: 0.8rem;
+  color: var(--text);
+  opacity: 0.7;
+  margin: 0;
   font-weight: 500;
-
-  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.detail-btn:hover {
-  background: var(--button-hover);
+.department-badge {
+  flex-shrink: 0;
+  /* Полупрозрачный фон под цвет текста темы */
+  background: rgba(128, 128, 128, 0.1);
+  color: var(--text);
+  opacity: 0.9;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+}
+
+.bio-preview {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer-row {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  /* Тонкая адаптивная линия раздела */
+  border-top: 1px solid var(--border, rgba(128, 128, 128, 0.1));
+}
+
+.contacts-inline {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.contact-tag {
+  background: rgba(128, 128, 128, 0.08);
+  color: var(--text);
+  opacity: 0.85;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.contact-tag.highlighted {
+  /* Мягкая подсветка телефона */
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  opacity: 1;
+}
+
+.contact-tag .icon {
+  opacity: 0.7;
+}
+
+.hire-date {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .employee-card {
+    padding: 0.9rem;
+    gap: 0.9rem;
+  }
+  
+  .card-avatar-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .card-footer-row {
     flex-direction: column;
-    text-align: center;
-    padding: 1rem;
-    gap: 1rem;
+    align-items: flex-start;
+    gap: 0.4rem;
   }
-
-  .card-photo {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-  }
-
-  .card-info {
-    align-items: center;
-  }
-
-  .name-block span {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-  }
-
-  .card-action {
-    position: static;
-    margin-top: 0.8rem;
-    display: flex;
-    justify-content: center;
-  }
-
-  .detail-btn {
-    font-size: 0.8rem;
-    padding: 0.45rem 0.9rem;
+  
+  .hire-date {
+    align-self: flex-end;
   }
 }
 </style>

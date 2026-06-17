@@ -7,13 +7,24 @@ import arrowLeftIcon from '../assets/icons/arrow-left.svg'
 
 const route = useRoute()
 const router = useRouter()
-const { getById, formatDate } = useEmployees()
+const { getById, formatDate, loadEmployees } = useEmployees()
 const employee = ref(null)
 
-onMounted(() => {
-  const id = Number(route.params.id)
-  employee.value = getById(id)
-  if (!employee.value) router.push({ name: 'Home' })
+onMounted(async () => {
+  const id = route.params.id
+  
+  // Попытка найти сотрудника в существующем кэше
+  employee.value = getById(Number(id)) || getById(id)
+  
+  // Если кэш пуст, запрашиваем данные с сервера
+  if (!employee.value && typeof loadEmployees === 'function') {
+    await loadEmployees()
+    employee.value = getById(Number(id)) || getById(id)
+  }
+  
+  if (!employee.value) {
+    router.push({ name: 'Home' })
+  }
 })
 
 function goBack() {
@@ -76,24 +87,20 @@ function goBack() {
   min-width: 0;
 }
 
-/* кнопка назад */
 .back-button {
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
   color: var(--text);
-
   padding: 0.5rem 1rem;
   border-radius: 60px;
   font-size: 0.9rem;
   cursor: pointer;
   margin-bottom: 2rem;
-
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-
   transition: 0.2s;
 }
 
@@ -101,23 +108,19 @@ function goBack() {
   background: var(--hover);
 }
 
-/* карточка */
 .detail-card {
   background: var(--surface);
   color: var(--text);
-
   border-radius: 32px;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 3rem;
-
   padding: 3rem;
   box-shadow: var(--shadow-soft);
   min-width: 0;
 }
 
-/* фото */
 .detail-photo {
   flex: 1;
   min-width: 260px;
@@ -135,13 +138,10 @@ function goBack() {
 .photo-placeholder {
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: linear-gradient(145deg,
-      var(--surface-alt),
-      var(--border));
+  background: linear-gradient(145deg, var(--surface-alt), var(--border));
   border-radius: 28px;
 }
 
-/* текст */
 .detail-info {
   flex: 2 1 0;
   min-width: 0;
@@ -155,7 +155,6 @@ function goBack() {
   font-weight: 700;
   margin: 0;
   color: var(--text);
-
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -182,12 +181,10 @@ function goBack() {
   word-break: break-word;
 }
 
-/* блок контактов */
 .contact-block {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-
   background: var(--surface-alt);
   padding: 1.5rem;
   border-radius: 24px;
@@ -219,7 +216,6 @@ function goBack() {
   word-break: break-word;
 }
 
-/* адаптив */
 @media (max-width: 768px) {
   .detail-card {
     flex-direction: column;

@@ -1,12 +1,16 @@
 <script setup>
+import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useAuth } from "../composables/useAuth";
+import { useEmployees } from "../composables/useEmployees";
 import { darkTheme, toggleTheme } from "../composables/useTheme";
 import lightThemeIcon from "../assets/icons/lightTheme.svg";
-import darkThemeIcon from "../assets/icons/darkTheme.svg"
+import darkThemeIcon from "../assets/icons/darkTheme.svg";
 
 const router = useRouter();
-const { isAuthenticated, isAdmin, logout } = useAuth();
+const { isAuthorized, logout } = useEmployees();
+
+// Создаем локальное вычисляемое свойство, чтобы Vue гарантированно отслеживал изменения ref-переменной в шаблоне
+const isDark = computed(() => darkTheme.value);
 
 function goToHome() {
   router.push({ name: "Home" });
@@ -27,7 +31,6 @@ console.log(lightThemeIcon, darkThemeIcon)
 
 <template>
   <header class="topnav">
-    <!-- Левая часть: логотип -->
     <div class="topnav__logo" @click="goToHome">
       <img src="../assets/icons/logo.png" alt="Logo" class="logo-img">
       <img src="../assets/лого_текст.svg" alt="Logo SVG" class="logo-svg">
@@ -38,18 +41,18 @@ console.log(lightThemeIcon, darkThemeIcon)
         <button @click="goToHome" class="nav-btn" :class="{ active: $route.name === 'Home' }">
           Сотрудники
         </button>
-        <button v-if="isAdmin" @click="goToAdmin" class="nav-btn" :class="{ active: $route.name === 'Admin' }">
+        <button v-if="isAuthorized" @click="goToAdmin" class="nav-btn" :class="{ active: $route.name === 'Admin' }">
           HR-панель
         </button>
       </div>
 
       <div class="topnav__auth">
-        <button @click="toggleTheme" class="theme-btn" :title="darkTheme ? 'Светлая тема' : 'Тёмная тема'">
-          <img :src="darkTheme ? lightThemeIcon : darkThemeIcon" alt="theme icon" class="theme-icon" />
+        <button @click="toggleTheme" class="theme-btn" :title="isDark ? 'Светлая тема' : 'Тёмная тема'">
+          <img :src="isDark ? lightThemeIcon : darkThemeIcon" alt="theme icon" class="theme-icon" />
         </button>
         
 
-        <div v-if="!isAuthenticated">
+        <div v-if="!isAuthorized">
           <button @click="goToLogin" class="btn-outline">Вход</button>
         </div>
         <div v-else>

@@ -2,13 +2,19 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
 import EmployeeCard from '../components/EmployeeCard.vue'
+import searchIcon from '../assets/icons/search.svg'
+import userPlug from "../assets/icons/userPlug.png"
 
-const { employees, departments, search, filterByDepartment, filterByPosition } = useEmployees()
+const { 
+  employees, 
+  departments, 
+  loadEmployees,
+  formatDate 
+} = useEmployees()
+
 const searchQuery = ref('')
 const selectedDepartment = ref('all')
 const selectedPosition = ref('all')
-
-import searchIcon from '../assets/icons/search.svg'
 
 const deptDropdownOpen = ref(false)
 const posDropdownOpen = ref(false)
@@ -18,16 +24,37 @@ const posSelectRef = ref(null)
 const itemsPerLoad = 6
 const visibleCount = ref(itemsPerLoad)
 const loading = ref(false)
-const hasMore = computed(() => visibleCount.value < filteredEmployees.value.length)
 
-const selectedDepartmentLabel = computed(() => selectedDepartment.value === 'all' ? 'Все отделы' : selectedDepartment.value)
+// СОСТОЯНИЕ ДЛЯ ДЕТАЛЬНОГО ПРОСМОТРА СОТРУДНИКА
+const selectedEmployeeForView = ref(null)
+
+function openDetailModal(emp) {
+  selectedEmployeeForView.value = emp
+}
+
+function closeDetailModal() {
+  selectedEmployeeForView.value = null
+}
+
+// Лейблы для кастомных селектов
+const selectedDepartmentLabel = computed(() => {
+  if (selectedDepartment.value === 'all') return 'Все отделы'
+  const found = departments.value.find(d => String(d.id) === String(selectedDepartment.value))
+  return found ? found.name : 'Все отделы'
+})
+
 const selectedPositionLabel = computed(() => selectedPosition.value === 'all' ? 'Все должности' : selectedPosition.value)
 
-const allPositions = computed(() => [...new Set(employees.value.map(emp => emp.position))])
+// Собираем уникальные должности по текущему списку
+const allPositions = computed(() => {
+  const list = employees.value && Array.isArray(employees.value) ? employees.value : []
+  return [...new Set(list.map(emp => emp.position).filter(Boolean))]
+})
 
 function toggleDepartments() { deptDropdownOpen.value = !deptDropdownOpen.value; posDropdownOpen.value = false }
 function togglePositions() { posDropdownOpen.value = !posDropdownOpen.value; deptDropdownOpen.value = false }
-function selectDepartment(dept) { selectedDepartment.value = dept; deptDropdownOpen.value = false }
+
+function selectDepartment(deptId) { selectedDepartment.value = deptId; deptDropdownOpen.value = false }
 function selectPosition(pos) { selectedPosition.value = pos; posDropdownOpen.value = false }
 
 function resetFilters() {
@@ -41,18 +68,44 @@ function handleClickOutside(e) {
   if (posSelectRef.value && !posSelectRef.value.contains(e.target)) posDropdownOpen.value = false
 }
 
+// Фильтрация по Поиску и Отделам ушла на бэкенд. 
+// Позиции фильтруем локально поверх отданного сервером результата.
 const filteredEmployees = computed(() => {
-  let result = search(searchQuery.value)
-  result = filterByDepartment(selectedDepartment.value, result)
-  result = filterByPosition(selectedPosition.value, result)
+  let result = employees.value && Array.isArray(employees.value) ? [...employees.value] : []
+  
+  if (selectedPosition.value !== 'all') {
+    result = result.filter(emp => emp.position === selectedPosition.value)
+  }
+  
   return result
 })
 
 const visibleEmployees = computed(() => {
-  return filteredEmployees.value.slice(0, visibleCount.value)
+  const currentFiltered = filteredEmployees.value || []
+  return currentFiltered.slice(0, visibleCount.value)
 })
 
-watch([searchQuery, selectedDepartment, selectedPosition], () => {
+const hasMore = computed(() => {
+  const currentFiltered = filteredEmployees.value || []
+  return visibleCount.value < currentFiltered.length
+})
+
+let timeoutId = null
+
+// WATCH: Делает запрос на бэкенд при вводе текста или смене отдела
+watch([searchQuery, selectedDepartment], () => {
+  visibleCount.value = itemsPerLoad
+  
+  clearTimeout(timeoutId)
+  timeoutId = setTimeout(() => {
+    loadEmployees({
+      search: searchQuery.value,
+      department: selectedDepartment.value
+    })
+  }, 300)
+})
+
+watch(selectedPosition, () => {
   visibleCount.value = itemsPerLoad
 })
 
@@ -60,7 +113,8 @@ function loadMore() {
   if (loading.value || !hasMore.value) return
   loading.value = true
   setTimeout(() => {
-    visibleCount.value = Math.min(visibleCount.value + itemsPerLoad, filteredEmployees.value.length)
+    const totalLength = filteredEmployees.value ? filteredEmployees.value.length : 0
+    visibleCount.value = Math.min(visibleCount.value + itemsPerLoad, totalLength)
     loading.value = false
   }, 300)
 }
@@ -75,7 +129,8 @@ function handleScroll() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadEmployees()
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('scroll', handleScroll)
 })
@@ -85,7 +140,7 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-const totalCount = computed(() => employees.value.length)
+const totalCount = computed(() => (employees.value && Array.isArray(employees.value)) ? employees.value.length : 0)
 </script>
 
 <template>
@@ -98,8 +153,14 @@ const totalCount = computed(() => employees.value.length)
         </div>
         <div class="custom-select__options" v-if="deptDropdownOpen">
           <div class="custom-select__option" @click.stop="selectDepartment('all')">Все отделы</div>
-          <div v-for="dept in departments" :key="dept" class="custom-select__option"
-            @click.stop="selectDepartment(dept)">{{ dept }}</div>
+          <div 
+            v-for="dept in departments" 
+            :key="dept.id" 
+            class="custom-select__option"
+            @click.stop="selectDepartment(dept.id)"
+          >
+            {{ dept.name }}
+          </div>
         </div>
       </div>
 
@@ -110,8 +171,14 @@ const totalCount = computed(() => employees.value.length)
         </div>
         <div class="custom-select__options" v-if="posDropdownOpen">
           <div class="custom-select__option" @click.stop="selectPosition('all')">Все должности</div>
-          <div v-for="pos in allPositions" :key="pos" class="custom-select__option" @click.stop="selectPosition(pos)">{{
-            pos }}</div>
+          <div 
+            v-for="pos in allPositions" 
+            :key="pos" 
+            class="custom-select__option" 
+            @click.stop="selectPosition(pos)"
+          >
+            {{ pos }}
+          </div>
         </div>
       </div>
 
@@ -123,14 +190,20 @@ const totalCount = computed(() => employees.value.length)
       <button class="reset-filters-btn" @click="resetFilters">Сбросить фильтры</button>
     </div>
 
-    <div v-if="filteredEmployees.length === 0" class="empty-state">
+    <div v-if="!filteredEmployees || filteredEmployees.length === 0" class="empty-state">
       <p>Сотрудники не найдены</p>
       <p class="empty-hint">Попробуйте изменить параметры поиска или фильтры</p>
     </div>
 
     <div v-else>
       <div class="employees-grid">
-        <EmployeeCard v-for="emp in visibleEmployees" :key="emp.id" :employee="emp" />
+        <EmployeeCard 
+          v-for="emp in visibleEmployees" 
+          :key="emp.id" 
+          :employee="emp" 
+          @click="openDetailModal(emp)"
+          style="cursor: pointer;"
+        />
       </div>
 
       <div v-if="loading" class="loading-indicator">
@@ -146,6 +219,44 @@ const totalCount = computed(() => employees.value.length)
         <button class="load-more-btn" @click="loadMore">Показать ещё</button>
       </div>
     </div>
+
+    <div v-if="selectedEmployeeForView" class="detail-backdrop" @click.self="closeDetailModal">
+      <div class="detail-card">
+        <button class="close-detail-btn" @click="closeDetailModal">×</button>
+        
+        <div class="detail-header">
+          <img :src="selectedEmployeeForView.photo_url || userPlug" class="detail-avatar" alt="Аватар" />
+          <div class="detail-title-info">
+            <h2>{{ selectedEmployeeForView.name }}</h2>
+            <p class="detail-position">{{ selectedEmployeeForView.position }}</p>
+            <span class="detail-dept-badge">{{ selectedEmployeeForView.department_name || 'Не указан' }}</span>
+          </div>
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value">{{ selectedEmployeeForView.email || '-' }}</span>
+          </div>
+          
+          <div class="detail-info-row">
+            <span class="info-label">Внутренний телефон:</span>
+            <span class="info-value phone-highlight">{{ selectedEmployeeForView.phone || '-' }}</span>
+          </div>
+
+          <div class="detail-info-row">
+            <span class="info-label">Дата приёма:</span>
+            <span class="info-value">{{ selectedEmployeeForView.hire_date ? formatDate(selectedEmployeeForView.hire_date) : '-' }}</span>
+          </div>
+
+          <div class="detail-bio-section">
+            <h3>О сотруднике / Обязанности</h3>
+            <p class="bio-text">{{ selectedEmployeeForView.bio || 'Информация не указана.' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -348,11 +459,119 @@ const totalCount = computed(() => employees.value.length)
   color: var(--button-text);
 }
 
-.results-info {
-  text-align: center;
-  font-size: 0.85rem;
+/* СТИЛИ ДЛЯ ДЕТАЛЬНОЙ МОДАЛКИ С СОТРУДНИКОМ */
+.detail-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  backdrop-filter: blur(5px);
+}
+
+.detail-card {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 2rem;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-strong);
+  position: relative;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.close-detail-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
   color: var(--muted);
+  cursor: pointer;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+.detail-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border);
+}
+
+.detail-title-info h2 {
+  font-size: 1.4rem;
+  margin: 0 0 0.3rem 0;
+}
+
+.detail-position {
+  color: var(--muted);
+  font-weight: 500;
+  margin: 0 0 0.6rem 0;
+}
+
+.detail-dept-badge {
+  background: var(--surface-alt);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.detail-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.95rem;
+}
+
+.info-label {
+  color: var(--muted);
+}
+
+.info-value {
+  font-weight: 500;
+}
+
+.phone-highlight {
+  color: var(--button-bg);
+  font-weight: 600;
+}
+
+.detail-bio-section {
+  margin-top: 1.5rem;
+  background: var(--surface-alt);
+  padding: 1.2rem;
+  border-radius: 1rem;
+}
+
+.detail-bio-section h3 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.bio-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-line;
 }
 
 @media (max-width: 1200px) {
@@ -378,6 +597,16 @@ const totalCount = computed(() => employees.value.length)
 
   .employees-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .detail-card {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    text-align: center;
   }
 }
 </style>

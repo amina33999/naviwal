@@ -1,16 +1,23 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '../composables/useAuth'
+import { useEmployees } from '../composables/useEmployees' 
 
 const router = useRouter()
-const { login } = useAuth()
+const { login } = useEmployees() 
 
 const form = reactive({ username: '', password: '' })
 const errors = ref({})
+const showPrivateNotice = ref(false) // Состояние для показа уведомления о закрытой регистрации
 
 function clearError(field) {
   delete errors.value[field]
+}
+
+function handleRegistrationClick() {
+  // Вместо переключения режима включаем плашку с предупреждением
+  showPrivateNotice.value = true
+  errors.value = {}
 }
 
 function validate() {
@@ -33,19 +40,20 @@ function validate() {
   return Object.keys(errors.value).length === 0
 }
 
-async function handleLogin() {
+async function handleFormSubmit() {
   if (!validate()) return
   
   const username = form.username.trim()
   const password = form.password.trim()
   
-  console.log('Попытка входа:', username, password) // для отладки
-  
-  const success = login(username, password)
-  
+  const success = await login(username, password)
   if (success) {
-    console.log('Успешный вход')
-    router.push({ name: 'Admin' })
+    try {
+      await router.push({ name: 'Admin' })
+    } catch (routeError) {
+      console.warn("Маршрут 'Admin' не найден, пробуем 'admin'", routeError)
+      await router.push({ path: '/admin' })
+    }
   } else {
     errors.value.general = 'Неверный логин или пароль'
   }
@@ -56,7 +64,16 @@ async function handleLogin() {
   <div class="login-page">
     <div class="login-card">
       <h2>Вход для HR-отдела</h2>
-      <form @submit.prevent="handleLogin">
+      
+      <div v-if="showPrivateNotice" class="private-notice animate-fade">
+        <div class="notice-header">
+          <strong>Доступ ограничен</strong>
+          <button class="close-notice" @click="showPrivateNotice = false">×</button>
+        </div>
+        <p>Это закрытая корпоративная система. Самостоятельная регистрация невозможна. Обратитесь к системному администратору для получения учётной записи.</p>
+      </div>
+
+      <form @submit.prevent="handleFormSubmit">
         <div class="field">
           <label>Логин</label>
           <input 
@@ -78,7 +95,14 @@ async function handleLogin() {
           <span v-if="errors.password" class="error">{{ errors.password }}</span>
         </div>
         <div v-if="errors.general" class="error general">{{ errors.general }}</div>
+        
         <button type="submit" class="btn-primary">Войти</button>
+        
+        <div class="toggle-mode-container">
+          <a href="#" @click.prevent="handleRegistrationClick" class="toggle-mode-link">
+            Нет аккаунта? Создать
+          </a>
+        </div>
       </form>
     </div>
   </div>
@@ -93,17 +117,15 @@ async function handleLogin() {
   background: var(--bg);
 }
 
-/* карточка */
 .login-card {
   background: var(--surface);
   color: var(--text);
-
   padding: 2rem;
   border-radius: 1.5rem;
   width: 100%;
   max-width: 400px;
-
   box-shadow: var(--shadow-soft);
+  position: relative;
 }
 
 .login-card h2 {
@@ -112,7 +134,40 @@ async function handleLogin() {
   color: var(--text);
 }
 
-/* поля */
+/* СТИЛИ ДЛЯ ПЛАШКИ О КОРПОРАТИВНОЙ ПРИВАТНОСТИ */
+.private-notice {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.notice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.notice-header strong {
+  font-weight: 600;
+  color: #7f1d1d;
+}
+
+.close-notice {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #991b1b;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
 .field {
   margin-bottom: 1rem;
 }
@@ -127,12 +182,9 @@ async function handleLogin() {
 .field input {
   width: 100%;
   padding: 0.75rem;
-
   border: 1px solid var(--border);
   border-radius: 0.75rem;
-
   font-size: 0.95rem;
-
   background: var(--surface);
   color: var(--text);
 }
@@ -146,28 +198,23 @@ async function handleLogin() {
   box-shadow: 0 0 0 2px var(--border);
 }
 
-/* кнопка */
 .btn-primary {
   width: 100%;
   padding: 0.75rem;
-
   background: var(--button-bg);
   color: var(--button-text);
-
   border: none;
   border-radius: 0.75rem;
-
   font-weight: 600;
   cursor: pointer;
-
   transition: 0.2s;
+  margin-top: 0.5rem;
 }
 
 .btn-primary:hover {
   background: var(--button-hover);
 }
 
-/* ошибки */
 .error {
   color: #ef4444;
   font-size: 0.75rem;
@@ -180,7 +227,32 @@ async function handleLogin() {
   margin-bottom: 1rem;
 }
 
-/* маленькая адаптация */
+.toggle-mode-container {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.toggle-mode-link {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.toggle-mode-link:hover {
+  color: var(--text);
+}
+
+/* АНИМАЦИЯ ПОЯВЛЕНИЯ ПЛАШКИ */
+.animate-fade {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 640px) {
   .login-card {
     margin: 1rem;

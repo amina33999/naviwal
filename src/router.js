@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuth } from './composables/useAuth'
-
 import HomePage from './views/HomePage.vue'
 import EmployeeDetail from './views/EmployeeDetail.vue'
 import AdminPanel from './views/AdminPanel.vue'
@@ -16,21 +14,27 @@ const routes = [
   { path: '/:pathMatch(.*)*', redirect: '/404' }
 ]
 
-export const router = createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
 router.beforeEach((to, from, next) => {
-  const { isAdmin, isAuthenticated } = useAuth()
+  // ИСПРАВЛЕНО: Проверяем наличие токена (как в композибле useEmployees), 
+  // чтобы роутер и логика авторизации работали с одним и тем же ключом
+  const isAuth = !!localStorage.getItem('token')
   
   if (to.meta.is404) {
     next()
-  } else if (to.meta.requiresAdmin && !isAdmin.value) {
-    next({ name: 'Home' })
-  } else if (to.meta.guestOnly && isAuthenticated.value) {
-    next({ name: 'Home' })
+  } else if (to.meta.requiresAdmin && !isAuth) {
+    // Если HR-панель требует админа, а мы не авторизованы — отправляем на Login
+    next({ name: 'Login' })
+  } else if (to.meta.guestOnly && isAuth) {
+    // Если авторизованы, но пытаемся зайти на страницу логина — перекидываем в админку
+    next({ name: 'Admin' })
   } else {
     next()
   }
 })
+
+export default router
