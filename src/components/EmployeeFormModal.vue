@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, ref } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
-import userPlug from "../assets/icons/userPlug.png"
+import userPlug from "../assets/icons/user-plug.png"
 
 const props = defineProps({
   employee: {

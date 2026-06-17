@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useEmployees } from '../composables/useEmployees'
 import EmployeeFormModal from '../components/EmployeeFormModal.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import userPlug from "../assets/icons/userPlug.png"
+import userPlug from "../assets/icons/user-plug.png"
 import editIcon from '../assets/icons/edit.svg'
 import trashIcon from '../assets/icons/trash.svg'
 import searchIcon from '../assets/icons/search.svg'
